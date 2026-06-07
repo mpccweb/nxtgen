@@ -407,6 +407,43 @@
   }
   .not-found-msg.visible { display: flex; align-items: center; gap: 8px; }
 
+  /* ── SEARCH RESULTS LIST ──────────────────────────────────────────────────── */
+  .results-list {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .results-list.visible { display: flex; }
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .result-item:hover { border-color: var(--sky); background: var(--sky-light); }
+  .result-item:active { background: var(--sky-light); }
+  .result-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--sky-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    border: 2px solid var(--border);
+    overflow: hidden;
+  }
+  .result-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .result-info { flex: 1; }
+  .result-info .r-name { font-weight: 800; font-size: 14px; color: var(--text); }
+  .result-info .r-meta { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+  .result-arrow { font-size: 16px; color: var(--sky); opacity: 0.6; }
+
   /* ── UPDATE FIELDS ────────────────────────────────────────────────────────── */
   .update-fields {
     display: none;
@@ -638,6 +675,9 @@
     <div class="not-found-msg" id="notFoundMsg">
       ❌ No student record found. Please check the details and try again.
     </div>
+
+    <!-- Search Results List (name search) -->
+    <div class="results-list" id="resultsList"></div>
 
     <!-- Student Found Card -->
     <div class="student-found-card" id="studentFoundCard">
@@ -879,6 +919,9 @@
     document.getElementById('studentFoundCard').classList.remove('visible');
     document.getElementById('notFoundMsg').classList.remove('visible');
     document.getElementById('updateFields').classList.remove('visible');
+    const list = document.getElementById('resultsList');
+    list.classList.remove('visible');
+    list.innerHTML = '';
   }
 
   // ── FIND STUDENT (simulated — swap for real GAS call later) ───────────────
@@ -910,43 +953,70 @@
     if (searchMode === 'id') {
       const id = document.getElementById('searchIdInput').value.trim().toUpperCase();
       if (!id) { showToast('Please enter a Student ID.', 'error'); return; }
-      foundStudent = MOCK_DB.find(s => s.id === id) || null;
+      const match = MOCK_DB.find(s => s.id === id) || null;
+      if (!match) {
+        document.getElementById('notFoundMsg').classList.add('visible');
+      } else {
+        selectStudent(match);
+      }
     } else {
       const last  = document.getElementById('searchLastName').value.trim().toLowerCase();
       const first = document.getElementById('searchFirstName').value.trim().toLowerCase();
-      if (!last || !first) { showToast('Please enter Last Name and First Name.', 'error'); return; }
-      foundStudent = MOCK_DB.find(s =>
-        s.lastName.toLowerCase()  === last &&
-        s.firstName.toLowerCase() === first
-      ) || null;
-    }
+      if (!last && !first) { showToast('Please enter at least a Last Name or First Name.', 'error'); return; }
 
-    if (!foundStudent) {
-      document.getElementById('notFoundMsg').classList.add('visible');
-      return;
-    }
+      // Partial match — either field alone is enough
+      const matches = MOCK_DB.filter(s => {
+        const lastMatch  = !last  || s.lastName.toLowerCase().includes(last);
+        const firstMatch = !first || s.firstName.toLowerCase().includes(first);
+        return lastMatch && firstMatch;
+      });
 
-    // Populate found card
+      if (matches.length === 0) {
+        document.getElementById('notFoundMsg').classList.add('visible');
+      } else if (matches.length === 1) {
+        // Only one match — select directly
+        selectStudent(matches[0]);
+      } else {
+        // Multiple matches — show scrollable list to pick from
+        const list = document.getElementById('resultsList');
+        list.innerHTML = '';
+        matches.forEach(s => {
+          const item = document.createElement('div');
+          item.className = 'result-item';
+          item.innerHTML = `
+            <div class="result-avatar">${s.photo ? '<img src="' + s.photo + '" alt="photo">' : '👦'}</div>
+            <div class="result-info">
+              <div class="r-name">${s.lastName}, ${s.firstName}${s.nickname ? ' "' + s.nickname + '"' : ''}</div>
+              <div class="r-meta">${s.grade} · ${s.birthdate}</div>
+            </div>
+            <div class="result-arrow">›</div>
+          `;
+          item.addEventListener('click', () => selectStudent(s));
+          list.appendChild(item);
+        });
+        list.classList.add('visible');
+      }
+    }
+  }
+
+  function selectStudent(student) {
+    foundStudent = student;
+    hideSearchResults();
+
+    // Repopulate found card
     document.getElementById('foundName').textContent =
-      foundStudent.lastName + ', ' + foundStudent.firstName +
-      (foundStudent.nickname ? ' "' + foundStudent.nickname + '"' : '');
+      student.lastName + ', ' + student.firstName +
+      (student.nickname ? ' "' + student.nickname + '"' : '');
     document.getElementById('foundMeta').textContent =
-      foundStudent.grade + ' · ' + foundStudent.birthdate + ' · Guardian: ' + foundStudent.guardian;
-    document.getElementById('foundId').textContent = foundStudent.id;
+      student.grade + ' · ' + student.birthdate + ' · Guardian: ' + student.guardian;
+    document.getElementById('foundId').textContent = student.id;
 
     const avatarEl = document.getElementById('foundAvatar');
-    if (foundStudent.photo) {
-      avatarEl.innerHTML = '<img src="' + foundStudent.photo + '" alt="photo">';
-    } else {
-      avatarEl.innerHTML = '👦';
-    }
+    avatarEl.innerHTML = student.photo ? '<img src="' + student.photo + '" alt="photo">' : '👦';
 
     document.getElementById('studentFoundCard').classList.add('visible');
     document.getElementById('updateFields').classList.add('visible');
-
-    // Pre-fill update fields with current values as placeholders
-    document.getElementById('updateAddress').placeholder  = 'Current: ' + foundStudent.address;
-    document.getElementById('updateContact').placeholder  = 'Current: ' + foundStudent.contact;
+    document.getElementById('updateContact').placeholder = 'Current: ' + student.contact;
   }
 
   // ── UPDATE PHOTO ────────────────────────────────────────────────────────────
