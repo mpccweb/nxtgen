@@ -549,13 +549,6 @@
         </select>
       </div>
     </div>
-    <div class="field-row">
-      <span class="field-icon">🏠</span>
-      <div class="field-inner">
-        <label>Home Address <span class="required-star">*</span></label>
-        <textarea id="address" placeholder="Street, Barangay, City"></textarea>
-      </div>
-    </div>
   </div>
 
   <!-- GUARDIAN INFO -->
@@ -679,15 +672,6 @@
       </div>
 
       <!-- Update Fields -->
-      <div class="section-label">Update Details</div>
-      <div class="field-group">
-        <div class="field-row">
-          <span class="field-icon">🏠</span>
-          <div class="field-inner">
-            <label>Home Address</label>
-            <textarea id="updateAddress" placeholder="Leave blank if no change..."></textarea>
-          </div>
-        </div>
         <div class="field-row">
           <span class="field-icon">📱</span>
           <div class="field-inner">
@@ -814,13 +798,12 @@
       nickname:        document.getElementById("nickname").value.trim(),
       gradeLevel:      document.getElementById("gradeLevel").value,
       birthdate:       document.getElementById("birthdate").value,
-      address:         document.getElementById("address").value.trim(),
       guardianName:    document.getElementById("guardianName").value.trim(),
       guardianContact: document.getElementById("guardianContact").value.trim(),
       altContact:      document.getElementById("altContact").value.trim(),
     };
 
-    if (!fields.lastName || !fields.firstName || !fields.gradeLevel || !fields.birthdate || !fields.address || !fields.guardianName || !fields.guardianContact) {
+    if (!fields.lastName || !fields.firstName || !fields.gradeLevel || !fields.birthdate || !fields.guardianName || !fields.guardianContact) {
       showToast("Please fill in all required fields.", "error");
       return;
     }
@@ -862,7 +845,7 @@
   }
 
   function clearForm() {
-    ["lastName","firstName","middleInitial","nickname","birthdate","address","guardianName","guardianContact","altContact"]
+    ["lastName","firstName","middleInitial","nickname","birthdate","guardianName","guardianContact","altContact"]
       .forEach(id => document.getElementById(id).value = "");
     document.getElementById("gradeLevel").selectedIndex = 0;
     photoBase64 = null;
@@ -994,12 +977,11 @@
   async function saveUpdate() {
     if (!foundStudent) { showToast('No student selected.', 'error'); return; }
 
-    const address    = document.getElementById('updateAddress').value.trim();
     const contact    = document.getElementById('updateContact').value.trim();
     const altContact = document.getElementById('updateAltContact').value.trim();
     const grade      = document.getElementById('updateGradeLevel').value;
 
-    const hasChanges = address || contact || altContact || grade || updatePhotoBase64;
+    const hasChanges = contact || altContact || grade || updatePhotoBase64;
     if (!hasChanges) { showToast('No changes to save.', 'error'); return; }
 
     if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
@@ -1016,7 +998,6 @@
     const payload = {
       action:      'update',
       studentId:   foundStudent.id,
-      address:     address    || null,
       contact:     contact    || null,
       altContact:  altContact || null,
       gradeLevel:  grade      || null,
@@ -1051,7 +1032,7 @@
     updatePhotoBase64 = null;
     hideSearchResults();
     ['searchIdInput','searchLastName','searchFirstName',
-     'updateAddress','updateContact','updateAltContact'].forEach(id => {
+     'updateContact','updateAltContact'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
