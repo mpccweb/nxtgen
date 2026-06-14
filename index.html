@@ -783,12 +783,12 @@
   //    Guide: Extensions > Apps Script > Deploy > New Deployment
   //           Type: Web App | Execute as: Me | Access: Anyone
   // ============================================================
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbyiLnNEAZ6OYXIJeeRzIJtlgTX7vHnqkt3uMlacgp6WUsIIoPCvOyBmHGoNNQSXxRvk5Q/exec";
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzxDzX5PFozfIUv2MuFRbA9OuJVY7jzRlwrcIQwwAUaURNsIBBS0F3vnMCVqQWf-0oW/exec";
   // ============================================================
 
   let photoBase64 = null;
 
-  if (GAS_URL !== "https://script.google.com/macros/s/AKfycbyiLnNEAZ6OYXIJeeRzIJtlgTX7vHnqkt3uMlacgp6WUsIIoPCvOyBmHGoNNQSXxRvk5Q/exec") {
+  if (GAS_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL") {
     document.getElementById("configBanner").classList.add("hidden");
   }
 
@@ -848,7 +848,7 @@
       return;
     }
 
-    if (GAS_URL === "https://script.google.com/macros/s/AKfycbyiLnNEAZ6OYXIJeeRzIJtlgTX7vHnqkt3uMlacgp6WUsIIoPCvOyBmHGoNNQSXxRvk5Q/exec") {
+    if (GAS_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL") {
       showToast("Google Apps Script URL not set yet.", "error");
       return;
     }
@@ -936,7 +936,7 @@
     foundStudent = null;
 
     // ── Demo mode: GAS not configured yet ─────────────────────────────────────
-    if (GAS_URL === 'https://script.google.com/macros/s/AKfycbyiLnNEAZ6OYXIJeeRzIJtlgTX7vHnqkt3uMlacgp6WUsIIoPCvOyBmHGoNNQSXxRvk5Q/exec') {
+    if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
       // Fallback demo records (Mitchel's kids) for testing before GAS is live
       const DEMO_DB = [
         { id: '24285', lastName: 'Ofiana', firstName: 'Callie Francesca', middleName: '', grade: 'Grade 7',  contact: '09226536353', guardian: 'Mitchel Ofiana' },
@@ -1090,7 +1090,7 @@
     const hasChanges = contact || altContact || grade || updatePhotoBase64;
     if (!hasChanges) { showToast('No changes to save.', 'error'); return; }
 
-    if (GAS_URL === 'https://script.google.com/macros/s/AKfycbyiLnNEAZ6OYXIJeeRzIJtlgTX7vHnqkt3uMlacgp6WUsIIoPCvOyBmHGoNNQSXxRvk5Q/exec') {
+    if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
       // DEMO MODE: simulate success
       showToast('Changes saved! (Demo mode) 🎉', 'success');
       resetUpdateTab();
