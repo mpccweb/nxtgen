@@ -606,6 +606,13 @@
         <input type="tel" id="altContact" placeholder="09XX-XXX-XXXX" autocomplete="off">
       </div>
     </div>
+    <div class="field-row">
+      <span class="field-icon">✉️</span>
+      <div class="field-inner">
+        <label>Parent Email Address <span class="required-star">*</span></label>
+        <input type="email" id="parentEmail" placeholder="e.g. juan.santos@gmail.com" autocomplete="off">
+      </div>
+    </div>
   </div>
 
   <button class="btn-submit" id="submitBtn" onclick="submitForm()">
@@ -736,6 +743,13 @@
           </div>
         </div>
         <div class="field-row">
+          <span class="field-icon">✉️</span>
+          <div class="field-inner">
+            <label>Parent Email Address</label>
+            <input type="email" id="updateEmail" placeholder="Leave blank if no change..." autocomplete="off">
+          </div>
+        </div>
+        <div class="field-row">
           <span class="field-icon">🎓</span>
           <div class="field-inner">
             <label>Grade Level</label>
@@ -844,9 +858,10 @@
       guardianName:    document.getElementById("guardianName").value.trim(),
       guardianContact: document.getElementById("guardianContact").value.trim(),
       altContact:      document.getElementById("altContact").value.trim(),
+      parentEmail:     document.getElementById("parentEmail").value.trim(),
     };
 
-    if (!fields.lastName || !fields.firstName || !fields.gradeLevel || !fields.birthdate || !fields.guardianName || !fields.guardianContact) {
+    if (!fields.lastName || !fields.firstName || !fields.gradeLevel || !fields.birthdate || !fields.guardianName || !fields.guardianContact || !fields.parentEmail) {
       showToast("Please fill in all required fields.", "error");
       return;
     }
@@ -888,7 +903,7 @@
   }
 
   function clearForm() {
-    ["lastName","firstName","middleInitial","nickname","birthdate","guardianName","guardianContact","altContact"]
+    ["lastName","firstName","middleInitial","nickname","birthdate","guardianName","guardianContact","altContact","parentEmail"]
       .forEach(id => document.getElementById(id).value = "");
     document.getElementById("gradeLevel").selectedIndex = 0;
     photoBase64 = null;
@@ -1089,6 +1104,7 @@
       contact:     contact    || null,
       altContact:  altContact || null,
       gradeLevel:  grade      || null,
+      email:       document.getElementById('updateEmail').value.trim() || null,
       photo:       updatePhotoBase64 || null,
       timestamp:   new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
     };
@@ -1120,7 +1136,7 @@
     updatePhotoBase64 = null;
     hideSearchResults();
     ['searchIdInput','searchIdLastName','searchLastName','searchFirstName',
-     'updateContact','updateAltContact'].forEach(id => {
+     'updateContact','updateAltContact','updateEmail'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
