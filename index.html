@@ -667,7 +667,7 @@
       <div class="search-input-row" style="flex-wrap:wrap; gap:10px;">
         <div class="search-input-wrap" style="flex:1;min-width:130px;">
           <label>Last Name</label>
-          <input type="text" id="searchLastName" placeholder="e.g. Ofiana" autocomplete="off">
+          <input type="text" id="searchLastName" placeholder="e.g. Surname" autocomplete="off">
         </div>
         <div class="search-input-wrap" style="flex:1;min-width:130px;">
           <label>First Name</label>
@@ -756,7 +756,7 @@
       <div style="font-size:12px;color:var(--text-soft);font-weight:600;margin-top:8px;padding:10px 14px;background:#FFFBEA;border:1.5px solid #FFDD57;border-radius:var(--radius-sm);display:flex;gap:8px;align-items:flex-start;">
         📧 <span>We're asking all returning families for an email so we can send registration confirmations and ministry news/updates going forward. Please provide it even if nothing else is changing.</span>
       </div>
-        <div class="field-row">
+        <div class="field-row" id="updateGradeFieldRow" style="display:none;">
           <span class="field-icon">🎓</span>
           <div class="field-inner">
             <label>Grade Level</label>
@@ -1057,6 +1057,10 @@
     document.getElementById('studentFoundCard').classList.add('visible');
     document.getElementById('updateFields').classList.add('visible');
     document.getElementById('updateContact').placeholder = 'Enter new contact number';
+
+    // Only show editable Grade Level when found via Name search (not via ID search)
+    const gradeRow = document.getElementById('updateGradeFieldRow');
+    if (gradeRow) gradeRow.style.display = (searchMode === 'name') ? 'flex' : 'none';
   }
 
   // ── UPDATE PHOTO ────────────────────────────────────────────────────────────
@@ -1152,6 +1156,7 @@
     });
     document.getElementById('updateGradeLevel').selectedIndex = 0;
     const sgl = document.getElementById('searchGradeLevel'); if(sgl) sgl.selectedIndex = 0;
+    const gradeRow = document.getElementById('updateGradeFieldRow'); if (gradeRow) gradeRow.style.display = 'none';
     document.getElementById('updatePhotoCard').classList.remove('has-photo');
     document.getElementById('updatePhotoPreview').src = '';
     document.getElementById('updatePhotoInput').value = '';
