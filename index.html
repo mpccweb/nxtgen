@@ -982,7 +982,9 @@
     document.getElementById("spinner").style.display = state ? "block" : "none";
   }
 
-  async function submitForm() {
+  let pendingRegistrationFields = null;
+
+  function submitForm() {
     const fields = {
       lastName:             document.getElementById("lastName").value.trim(),
       firstName:            document.getElementById("firstName").value.trim(),
@@ -1004,8 +1006,34 @@
       return;
     }
 
+    // Build the review list — new registration, so just show what's being submitted
+    const changes = [];
+    changes.push({ label: "Child's Name", newVal: fields.lastName + ", " + fields.firstName + (fields.middleInitial ? " " + fields.middleInitial : "") });
+    if (fields.nickname) changes.push({ label: "Nickname", newVal: fields.nickname });
+    changes.push({ label: "Grade Level", newVal: fields.gradeLevel });
+    changes.push({ label: "Date of Birth", newVal: fields.birthdate });
+    changes.push({ label: "Parent Name", newVal: fields.parentName });
+    changes.push({ label: "Parent Contact", newVal: fields.parentContact });
+    changes.push({ label: "Parent Email", newVal: fields.parentEmail });
+    if (fields.guardianName)         changes.push({ label: "Guardian Name", newVal: fields.guardianName });
+    if (fields.guardianRelationship) changes.push({ label: "Relationship to Student", newVal: fields.guardianRelationship });
+    if (fields.guardianContact)      changes.push({ label: "Guardian Contact", newVal: fields.guardianContact });
+    if (fields.guardianEmail)        changes.push({ label: "Guardian Email", newVal: fields.guardianEmail });
+    if (photoBase64)                 changes.push({ label: "Photo", newVal: "Photo attached ✓" });
+
+    pendingRegistrationFields = fields;
+
+    const studentLabel = fields.lastName + ", " + fields.firstName + " — New Registration";
+    showReviewModal(changes, "register", studentLabel, "Review New Registration");
+  }
+
+  async function performRegistrationSubmit() {
+    const fields = pendingRegistrationFields;
+    if (!fields) return;
+
     if (GAS_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL") {
-      showToast("Google Apps Script URL not set yet.", "error");
+      showToast("Registration saved! (Demo mode) 🎉", "success");
+      clearForm();
       return;
     }
 
@@ -1041,8 +1069,10 @@
   }
 
   function clearForm() {
-    ["lastName","firstName","middleInitial","nickname","birthdate","guardianName","guardianContact","altContact","parentEmail"]
-      .forEach(id => document.getElementById(id).value = "");
+    ["lastName","firstName","middleInitial","nickname","birthdate",
+     "parentName","parentContact","parentEmail",
+     "guardianName","guardianRelationship","guardianContact","guardianEmail"]
+      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
     document.getElementById("gradeLevel").selectedIndex = 0;
     photoBase64 = null;
     document.getElementById("photoPreview").src = "";
@@ -1276,13 +1306,17 @@
       return;
     }
 
-    showReviewModal(changes);
+    const studentLabel = foundStudent.lastName + ', ' + foundStudent.firstName + ' · Student ID: ' + foundStudent.id;
+    showReviewModal(changes, 'update', studentLabel, 'Review Your Changes');
   }
 
-  function showReviewModal(changes) {
-    const fullName = foundStudent.lastName + ', ' + foundStudent.firstName;
-    document.getElementById('reviewStudentInfo').textContent =
-      fullName + ' · Student ID: ' + foundStudent.id;
+  let pendingSubmitType = null;
+
+  function showReviewModal(changes, submitType, studentLabel, modalTitle) {
+    pendingSubmitType = submitType;
+    const titleEl = document.querySelector('.review-modal h3');
+    if (titleEl) titleEl.textContent = modalTitle || 'Review Your Changes';
+    document.getElementById('reviewStudentInfo').textContent = studentLabel;
 
     const list = document.getElementById('reviewChangesList');
     list.innerHTML = '';
@@ -1303,7 +1337,11 @@
   async function confirmAndSubmit() {
     document.getElementById('reviewConfirmBtn').disabled = true;
     document.getElementById('reviewConfirmBtn').textContent = 'Saving...';
-    await performUpdateSubmit();
+    if (pendingSubmitType === 'register') {
+      await performRegistrationSubmit();
+    } else {
+      await performUpdateSubmit();
+    }
     document.getElementById('reviewConfirmBtn').disabled = false;
     document.getElementById('reviewConfirmBtn').textContent = 'Confirm & Save';
     closeReviewModal();
