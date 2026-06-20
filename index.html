@@ -473,6 +473,66 @@
   .btn-save-update:active { transform: scale(0.98); }
   .btn-save-update:disabled { opacity: 0.6; cursor: not-allowed; }
 
+  /* ── REVIEW MODAL ─────────────────────────────────────────────────────────── */
+  .review-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(26,26,46,0.55);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .review-overlay.visible { display: flex; }
+  .review-modal {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    max-width: 420px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    padding: 26px 22px 22px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  }
+  .review-modal h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 21px; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .review-student {
+    font-size: 13px; color: var(--text-soft); font-weight: 700; margin-bottom: 18px;
+  }
+  .review-change-row {
+    padding: 12px 14px;
+    background: var(--sky-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+  .review-change-row .field-name {
+    font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.7px; color: var(--sky-dark); margin-bottom: 4px;
+  }
+  .review-change-row .change-values {
+    font-size: 14.5px; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .review-change-row .old-value {
+    color: #C0392B; text-decoration: line-through; opacity: 0.65;
+  }
+  .review-change-row .arrow { color: var(--text-soft); font-weight: 400; }
+  .review-change-row .new-value { color: var(--grass-dark); }
+  .review-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .review-btn-confirm {
+    flex: 1; padding: 14px;
+    background: linear-gradient(135deg, var(--grass) 0%, var(--grass-dark) 100%);
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    font-family: 'Fredoka One', cursive; font-size: 15px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(91,191,140,0.3);
+  }
+  .review-btn-back {
+    flex: 1; padding: 14px;
+    background: transparent; color: var(--text-soft);
+    border: 2px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+
 </style>
 </head>
 <body>
@@ -757,19 +817,14 @@
         </div>
       </div>
 
-      <!-- Update Fields -->
+      <!-- Parent Info -->
+      <div style="font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin:20px 0 8px 2px;">Parent</div>
+      <div class="field-group">
         <div class="field-row">
           <span class="field-icon">📱</span>
           <div class="field-inner">
             <label>Contact Number</label>
             <input type="tel" id="updateContact" placeholder="Leave blank if no change..." autocomplete="off">
-          </div>
-        </div>
-        <div class="field-row">
-          <span class="field-icon">📞</span>
-          <div class="field-inner">
-            <label>Alternate Contact</label>
-            <input type="tel" id="updateAltContact" placeholder="Leave blank if no change..." autocomplete="off">
           </div>
         </div>
         <div class="field-row">
@@ -783,30 +838,63 @@
       <div style="font-size:12px;color:var(--text-soft);font-weight:600;margin-top:8px;padding:10px 14px;background:#FFFBEA;border:1.5px solid #FFDD57;border-radius:var(--radius-sm);display:flex;gap:8px;align-items:flex-start;">
         📧 <span>We're asking all returning families for an email so we can send registration confirmations and ministry news/updates going forward. Please provide it even if nothing else is changing.</span>
       </div>
-        <div class="field-row" id="updateGradeFieldRow" style="display:none;">
-          <span class="field-icon">🎓</span>
+
+      <!-- Guardian Info -->
+      <div style="font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin:20px 0 8px 2px;">Guardian <span style="text-transform:none;font-weight:600;color:#BDC8D5;">(if different from parent — optional)</span></div>
+      <div class="field-group">
+        <div class="field-row">
+          <span class="field-icon">🧑</span>
           <div class="field-inner">
-            <label>Grade Level</label>
-            <select id="updateGradeLevel" style="width:100%;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);outline:none;-webkit-appearance:none;cursor:pointer;">
-              <option value="" selected>No change</option>
-              <optgroup label="Nursery / Pre-school">
-                <option value="Nursery">Nursery</option>
-                <option value="Kinder">Kinder</option>
-              </optgroup>
-              <optgroup label="Grade School">
-                <option value="Grade 1">Grade 1</option>
-                <option value="Grade 2">Grade 2</option>
-                <option value="Grade 3">Grade 3</option>
-                <option value="Grade 4">Grade 4</option>
-                <option value="Grade 5">Grade 5</option>
-                <option value="Grade 6">Grade 6</option>
-                <option value="Grade 7">Grade 7</option>
-              </optgroup>
-              <optgroup label="High School">
-                <option value="Sun High">Sun High</option>
-              </optgroup>
-            </select>
+            <label>Guardian Name</label>
+            <input type="text" id="updateGuardianName" placeholder="Leave blank if no change..." autocomplete="off">
           </div>
+        </div>
+        <div class="field-row">
+          <span class="field-icon">🔗</span>
+          <div class="field-inner">
+            <label>Relationship to Student</label>
+            <input type="text" id="updateGuardianRelationship" placeholder="e.g. Grandmother, Aunt, Yaya" autocomplete="off">
+          </div>
+        </div>
+        <div class="field-row">
+          <span class="field-icon">📞</span>
+          <div class="field-inner">
+            <label>Guardian Contact Number</label>
+            <input type="tel" id="updateGuardianContact" placeholder="Leave blank if no change..." autocomplete="off">
+          </div>
+        </div>
+        <div class="field-row">
+          <span class="field-icon">✉️</span>
+          <div class="field-inner">
+            <label>Guardian Email Address</label>
+            <input type="email" id="updateGuardianEmail" placeholder="Leave blank if no change..." autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="field-row" id="updateGradeFieldRow" style="display:none;">
+        <span class="field-icon">🎓</span>
+        <div class="field-inner">
+          <label>Grade Level</label>
+          <select id="updateGradeLevel" style="width:100%;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);outline:none;-webkit-appearance:none;cursor:pointer;">
+            <option value="" selected>No change</option>
+            <optgroup label="Nursery / Pre-school">
+              <option value="Nursery">Nursery</option>
+              <option value="Kinder">Kinder</option>
+            </optgroup>
+            <optgroup label="Grade School">
+              <option value="Grade 1">Grade 1</option>
+              <option value="Grade 2">Grade 2</option>
+              <option value="Grade 3">Grade 3</option>
+              <option value="Grade 4">Grade 4</option>
+              <option value="Grade 5">Grade 5</option>
+              <option value="Grade 6">Grade 6</option>
+              <option value="Grade 7">Grade 7</option>
+            </optgroup>
+            <optgroup label="High School">
+              <option value="Sun High">Sun High</option>
+            </optgroup>
+          </select>
         </div>
       </div>
 
@@ -826,6 +914,19 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- REVIEW CHANGES MODAL -->
+<div class="review-overlay" id="reviewOverlay">
+  <div class="review-modal">
+    <h3>Review Your Changes</h3>
+    <div class="review-student" id="reviewStudentInfo">—</div>
+    <div id="reviewChangesList"></div>
+    <div class="review-actions">
+      <button class="review-btn-back" onclick="closeReviewModal()">Go Back</button>
+      <button class="review-btn-confirm" id="reviewConfirmBtn" onclick="confirmAndSubmit()">Confirm &amp; Save</button>
+    </div>
+  </div>
+</div>
 
 <script>
   // ============================================================
@@ -1121,15 +1222,104 @@
   async function saveUpdate() {
     if (!foundStudent) { showToast('No student selected.', 'error'); return; }
 
-    const contact    = document.getElementById('updateContact').value.trim();
-    const altContact = document.getElementById('updateAltContact').value.trim();
-    const grade      = document.getElementById('updateGradeLevel').value;
-    const email      = document.getElementById('updateEmail').value.trim();
+    const contact          = document.getElementById('updateContact').value.trim();
+    const email             = document.getElementById('updateEmail').value.trim();
+    const grade             = document.getElementById('updateGradeLevel').value;
+    const guardianName      = document.getElementById('updateGuardianName').value.trim();
+    const guardianRel       = document.getElementById('updateGuardianRelationship').value.trim();
+    const guardianContact   = document.getElementById('updateGuardianContact').value.trim();
+    const guardianEmail     = document.getElementById('updateGuardianEmail').value.trim();
 
     if (!email) { showToast('Parent Email Address is required.', 'error'); return; }
 
-    const hasChanges = contact || altContact || grade || updatePhotoBase64 || email;
+    const hasChanges = contact || email || grade || updatePhotoBase64 ||
+      guardianName || guardianRel || guardianContact || guardianEmail;
     if (!hasChanges) { showToast('No changes to save.', 'error'); return; }
+
+    // Build the list of changes to show in the review modal
+    const oldContact        = foundStudent.parentContact   || foundStudent.contact || '';
+    const oldEmail          = foundStudent.parentEmail     || '';
+    const oldGrade          = foundStudent.grade           || '';
+    const oldGuardianName   = foundStudent.guardianName    || '';
+    const oldGuardianRel    = foundStudent.guardianRel     || '';
+    const oldGuardianContact= foundStudent.guardianContact || '';
+    const oldGuardianEmail  = foundStudent.guardianEmail   || '';
+
+    const changes = [];
+    if (contact && contact !== oldContact) {
+      changes.push({ label: 'Contact Number', oldVal: oldContact || '(not on file)', newVal: contact });
+    }
+    if (email && email !== oldEmail) {
+      changes.push({ label: 'Parent Email', oldVal: oldEmail || '(not on file)', newVal: email });
+    }
+    if (grade && grade !== oldGrade) {
+      changes.push({ label: 'Grade Level', oldVal: oldGrade || '(not on file)', newVal: grade });
+    }
+    if (guardianName && guardianName !== oldGuardianName) {
+      changes.push({ label: 'Guardian Name', oldVal: oldGuardianName || '(not on file)', newVal: guardianName });
+    }
+    if (guardianRel && guardianRel !== oldGuardianRel) {
+      changes.push({ label: 'Relationship to Student', oldVal: oldGuardianRel || '(not on file)', newVal: guardianRel });
+    }
+    if (guardianContact && guardianContact !== oldGuardianContact) {
+      changes.push({ label: 'Guardian Contact', oldVal: oldGuardianContact || '(not on file)', newVal: guardianContact });
+    }
+    if (guardianEmail && guardianEmail !== oldGuardianEmail) {
+      changes.push({ label: 'Guardian Email', oldVal: oldGuardianEmail || '(not on file)', newVal: guardianEmail });
+    }
+    if (updatePhotoBase64) {
+      changes.push({ label: 'Photo', oldVal: null, newVal: 'New photo will be saved' });
+    }
+
+    if (changes.length === 0) {
+      showToast('No actual changes detected.', 'error');
+      return;
+    }
+
+    showReviewModal(changes);
+  }
+
+  function showReviewModal(changes) {
+    const fullName = foundStudent.lastName + ', ' + foundStudent.firstName;
+    document.getElementById('reviewStudentInfo').textContent =
+      fullName + ' · Student ID: ' + foundStudent.id;
+
+    const list = document.getElementById('reviewChangesList');
+    list.innerHTML = '';
+    changes.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'review-change-row';
+      const valuesHtml = c.oldVal
+        ? `<span class="old-value">${c.oldVal}</span><span class="arrow">→</span><span class="new-value">${c.newVal}</span>`
+        : `<span class="new-value">${c.newVal}</span>`;
+      row.innerHTML = `<div class="field-name">${c.label}</div><div class="change-values">${valuesHtml}</div>`;
+      list.appendChild(row);
+    });
+
+    document.getElementById('reviewOverlay').classList.add('visible');
+  }
+
+  function closeReviewModal() {
+    document.getElementById('reviewOverlay').classList.remove('visible');
+  }
+
+  async function confirmAndSubmit() {
+    document.getElementById('reviewConfirmBtn').disabled = true;
+    document.getElementById('reviewConfirmBtn').textContent = 'Saving...';
+    await performUpdateSubmit();
+    document.getElementById('reviewConfirmBtn').disabled = false;
+    document.getElementById('reviewConfirmBtn').textContent = 'Confirm & Save';
+    closeReviewModal();
+  }
+
+  async function performUpdateSubmit() {
+    const contact          = document.getElementById('updateContact').value.trim();
+    const email             = document.getElementById('updateEmail').value.trim();
+    const grade             = document.getElementById('updateGradeLevel').value;
+    const guardianName      = document.getElementById('updateGuardianName').value.trim();
+    const guardianRel       = document.getElementById('updateGuardianRelationship').value.trim();
+    const guardianContact   = document.getElementById('updateGuardianContact').value.trim();
+    const guardianEmail     = document.getElementById('updateGuardianEmail').value.trim();
 
     if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
       // DEMO MODE: simulate success
@@ -1143,13 +1333,16 @@
     document.getElementById('updateSpinner').style.display = 'block';
 
     const payload = {
-      action:      'update',
-      studentId:   foundStudent.id,
-      contact:     contact    || null,
-      altContact:  altContact || null,
-      gradeLevel:  grade      || null,
-      email:       email || null,
-      photo:       updatePhotoBase64 || null,
+      action:               'update',
+      studentId:            foundStudent.id,
+      contact:              contact          || null,
+      email:                email            || null,
+      gradeLevel:           grade            || null,
+      guardianName:         guardianName     || null,
+      guardianRelationship: guardianRel      || null,
+      guardianContact:      guardianContact  || null,
+      guardianEmail:        guardianEmail    || null,
+      photo:                updatePhotoBase64 || null,
       timestamp:   new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
     };
 
@@ -1180,7 +1373,8 @@
     updatePhotoBase64 = null;
     hideSearchResults();
     ['searchIdInput','searchIdLastName','searchLastName','searchFirstName',
-     'updateContact','updateAltContact','updateEmail'].forEach(id => {
+     'updateContact','updateEmail',
+     'updateGuardianName','updateGuardianRelationship','updateGuardianContact','updateGuardianEmail'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
