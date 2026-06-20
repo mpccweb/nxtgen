@@ -113,6 +113,27 @@
   .photo-card.has-photo { border-color: var(--sky); background: var(--sky-light); }
   .photo-card input[type="file"] {
     position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+
+  /* ── PHOTO SAMPLE GUIDE ──────────────────────────────────────────────────── */
+  .photo-sample-guide {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 10px; padding: 10px 14px;
+    background: var(--sky-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .photo-sample-guide .sample-frame {
+    flex-shrink: 0;
+    width: 52px; height: 52px;
+    border: 2px solid var(--sky);
+    border-radius: 6px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .photo-sample-guide .sample-text {
+    font-size: 12px; color: var(--text-soft); font-weight: 600; line-height: 1.4;
+  }
+  .photo-sample-guide .sample-text strong { color: var(--sky-dark); }
   }
   .photo-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .cam-circle {
@@ -565,6 +586,18 @@
 
   <!-- PHOTO -->
   <div class="section-label">Child Photo</div>
+  <div class="photo-sample-guide">
+    <div class="sample-frame">
+      <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+        <rect width="52" height="52" fill="#FFFFFF"/>
+        <circle cx="26" cy="19" r="9" fill="#AEC6E8"/>
+        <path d="M 8 50 Q 8 31 26 31 Q 44 31 44 50 Z" fill="#AEC6E8"/>
+      </svg>
+    </div>
+    <div class="sample-text">
+      <strong>Sample format:</strong> 1x1 photo · Plain white background · Face clearly visible
+    </div>
+  </div>
   <div class="photo-card" id="photoCard">
     <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)">
     <div class="photo-placeholder">
@@ -757,7 +790,7 @@
           <input type="text" id="searchLastName" placeholder="e.g. Surname" autocomplete="off">
         </div>
         <div class="search-input-wrap" style="flex:1;min-width:130px;">
-          <label>First Name <span style="text-transform:none;font-weight:500;color:#183580;">(2nd name if any e.g. Maria Clara)</span></label>
+          <label>First Name <span style="text-transform:none;font-weight:600;color:var(--sky);">2nd name if any e.g. maria clara</span></label>
           <input type="text" id="searchFirstName" placeholder="e.g. Maria" autocomplete="off">
         </div>
       </div>
@@ -802,8 +835,19 @@
         ✏️ Only fill in the fields you want to update. Leave the rest blank.
       </div>
 
-      <!-- Update Photo -->
       <div class="section-label">Update Photo</div>
+      <div class="photo-sample-guide">
+        <div class="sample-frame">
+          <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#FFFFFF"/>
+            <circle cx="26" cy="19" r="9" fill="#AEC6E8"/>
+            <path d="M 8 50 Q 8 31 26 31 Q 44 31 44 50 Z" fill="#AEC6E8"/>
+          </svg>
+        </div>
+        <div class="sample-text">
+          <strong>Sample format:</strong> 1x1 photo · Plain white background · Face clearly visible
+        </div>
+      </div>
       <div class="photo-card" id="updatePhotoCard">
         <input type="file" accept="image/*" capture="environment" id="updatePhotoInput" onchange="handleUpdatePhoto(event)">
         <div class="photo-placeholder">
@@ -1110,6 +1154,22 @@
     list.innerHTML = '';
   }
 
+  // Clears the editable Update fields only (not the search inputs) — called
+  // before every new search so leftover values from a previous student
+  // never carry over and get mistaken for an intentional change.
+  function clearUpdateFormFields() {
+    ['updateContact','updateEmail','updateGuardianName',
+     'updateGuardianRelationship','updateGuardianContact','updateGuardianEmail'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const gl = document.getElementById('updateGradeLevel'); if (gl) gl.selectedIndex = 0;
+    updatePhotoBase64 = null;
+    const pc = document.getElementById('updatePhotoCard'); if (pc) pc.classList.remove('has-photo');
+    const pp = document.getElementById('updatePhotoPreview'); if (pp) pp.src = '';
+    const pi = document.getElementById('updatePhotoInput'); if (pi) pi.value = '';
+  }
+
   // ── FIND STUDENT — Live Google Apps Script lookup ─────────────────────────
   let foundStudent = null;
   let updatePhotoBase64 = null;
@@ -1117,6 +1177,7 @@
   async function findStudent() {
     hideSearchResults();
     foundStudent = null;
+    clearUpdateFormFields(); // prevent stale values from a previous search carrying over
 
     // ── Demo mode ──────────────────────────────────────────────────────────────
     if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
