@@ -759,6 +759,7 @@
         <div class="search-input-wrap" style="flex:1;min-width:130px;">
           <label>First Name</label>
           <input type="text" id="searchFirstName" placeholder="e.g. Maria" autocomplete="off">
+          <span style="display:block;font-size:11px;color:var(--text-soft);font-weight:600;margin-top:4px;">Include second name if any (e.g. "Maria Cristina")</span>
         </div>
       </div>
       <div class="search-input-row" style="flex-wrap:wrap; gap:10px; margin-top:10px;">
@@ -1219,9 +1220,9 @@
     document.getElementById('updateFields').classList.add('visible');
     document.getElementById('updateContact').placeholder = 'Enter new contact number';
 
-    // Only show editable Grade Level when found via Name search (not via ID search)
+    // Grade Level editing now available for both ID and Name search
     const gradeRow = document.getElementById('updateGradeFieldRow');
-    if (gradeRow) gradeRow.style.display = (searchMode === 'name') ? 'flex' : 'none';
+    if (gradeRow) gradeRow.style.display = 'flex';
   }
 
   // ── UPDATE PHOTO ────────────────────────────────────────────────────────────
