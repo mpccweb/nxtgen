@@ -1289,10 +1289,7 @@
     changes.forEach(c => {
       const row = document.createElement('div');
       row.className = 'review-change-row';
-      const valuesHtml = c.oldVal
-        ? `<span class="old-value">${c.oldVal}</span><span class="arrow">→</span><span class="new-value">${c.newVal}</span>`
-        : `<span class="new-value">${c.newVal}</span>`;
-      row.innerHTML = `<div class="field-name">${c.label}</div><div class="change-values">${valuesHtml}</div>`;
+      row.innerHTML = `<div class="field-name">${c.label}</div><div class="change-values"><span class="new-value">${c.newVal}</span></div>`;
       list.appendChild(row);
     });
 
