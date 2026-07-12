@@ -640,10 +640,20 @@
       </div>
     </div>
     <div class="field-row">
-      <span class="field-icon">😊</span>
-      <div class="field-inner">
-        <label>Nickname</label>
-        <input type="text" id="nickname" placeholder="e.g. Mia" autocomplete="off">
+      <span class="field-icon" style="opacity:0">😊</span>
+      <div class="field-inner" style="display:flex; gap:12px;">
+        <div style="flex:2;">
+          <label style="display:block;font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin-bottom:4px;">Nickname</label>
+          <input type="text" id="nickname" placeholder="e.g. Mia" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);outline:none;">
+        </div>
+        <div style="flex:1;border-left:1px solid var(--border);padding-left:12px;">
+          <label style="display:block;font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin-bottom:4px;">Gender</label>
+          <select id="gender" style="width:100%;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);outline:none;-webkit-appearance:none;cursor:pointer;">
+            <option value="" disabled selected>Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="field-row">
@@ -1038,6 +1048,7 @@
       firstName:            document.getElementById("firstName").value.trim(),
       middleInitial:        document.getElementById("middleInitial").value.trim(),
       nickname:             document.getElementById("nickname").value.trim(),
+      gender:               document.getElementById("gender").value,
       gradeLevel:           document.getElementById("gradeLevel").value,
       birthdate:            document.getElementById("birthdate").value,
       parentName:           document.getElementById("parentName").value.trim(),
@@ -1058,6 +1069,7 @@
     const changes = [];
     changes.push({ label: "Child's Name", newVal: fields.lastName + ", " + fields.firstName + (fields.middleInitial ? " " + fields.middleInitial : "") });
     if (fields.nickname) changes.push({ label: "Nickname", newVal: fields.nickname });
+    if (fields.gender)   changes.push({ label: "Gender", newVal: fields.gender });
     changes.push({ label: "Grade Level", newVal: fields.gradeLevel });
     changes.push({ label: "Date of Birth", newVal: fields.birthdate });
     changes.push({ label: "Parent Name", newVal: fields.parentName });
@@ -1122,6 +1134,7 @@
      "guardianName","guardianRelationship","guardianContact","guardianEmail"]
       .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
     document.getElementById("gradeLevel").selectedIndex = 0;
+    document.getElementById("gender").selectedIndex = 0;
     photoBase64 = null;
     document.getElementById("photoPreview").src = "";
     document.getElementById("photoCard").classList.remove("has-photo");
