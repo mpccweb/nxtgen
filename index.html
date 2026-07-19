@@ -1106,6 +1106,8 @@
       timestamp: new Date().toLocaleString("en-PH", { timeZone: "Asia/Manila" })
     };
 
+  console.log("PAYLOAD:", JSON.stringify(payload));
+
     try {
       const res = await fetch(GAS_URL, {
         method: "POST",
