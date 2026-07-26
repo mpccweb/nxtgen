@@ -643,8 +643,9 @@
       <span class="field-icon" style="opacity:0">😊</span>
       <div class="field-inner" style="display:flex; gap:12px;">
         <div style="flex:2;">
-          <label style="display:block;font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin-bottom:4px;">Nickname</label>
+          <label style="display:block;font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin-bottom:4px;">Nickname <span class="required-star">*</span></label>
           <input type="text" id="nickname" placeholder="e.g. Mia" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);outline:none;">
+          <div style="font-size:11px;color:#e8631a;margin-top:4px;font-style:italic;">⚠ This will appear on their ID and sticker tag. Please fill in.</div>
         </div>
         <div style="flex:1;border-left:1px solid var(--border);padding-left:12px;">
           <label style="display:block;font-size:10.5px;font-weight:800;letter-spacing:0.9px;text-transform:uppercase;color:var(--text-soft);margin-bottom:4px;">Gender</label>
@@ -1060,7 +1061,7 @@
       guardianEmail:        document.getElementById("guardianEmail").value.trim(),
     };
 
-    if (!fields.lastName || !fields.firstName || !fields.gradeLevel || !fields.birthdate || !fields.parentName || !fields.parentContact || !fields.parentEmail) {
+    if (!fields.lastName || !fields.firstName || !fields.nickname || !fields.gradeLevel || !fields.birthdate || !fields.parentName || !fields.parentContact || !fields.parentEmail) {
       showToast("Please fill in all required fields.", "error");
       return;
     }
@@ -1105,8 +1106,6 @@
       photo: photoBase64 || null,
       timestamp: new Date().toLocaleString("en-PH", { timeZone: "Asia/Manila" })
     };
-
-  console.log("PAYLOAD:", JSON.stringify(payload));
 
     try {
       const res = await fetch(GAS_URL, {
