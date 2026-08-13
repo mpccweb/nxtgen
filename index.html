@@ -604,15 +604,22 @@
     </div>
   </div>
   <div class="photo-card" id="photoCard">
-    <input type="file" accept="image/*" capture id="photoInput" onchange="handlePhoto(event)">
+    <input type="file" accept="image/*" capture="environment" id="photoInputCamera" onchange="handlePhoto(event)" style="display:none;">
+    <input type="file" accept="image/*" id="photoInputGallery" onchange="handlePhoto(event)" style="display:none;">
     <div class="photo-placeholder">
       <div class="cam-circle">📷</div>
-      <p>Take a Photo</p>
-      <span>Tap to open camera</span>
+      <p>Add Child's Photo</p>
+      <div style="display:flex;gap:10px;margin-top:10px;justify-content:center;">
+        <button type="button" onclick="document.getElementById('photoInputCamera').click()" style="padding:8px 16px;border:1.5px solid #e8631a;border-radius:8px;background:white;color:#e8631a;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">📷 Take Photo</button>
+        <button type="button" onclick="document.getElementById('photoInputGallery').click()" style="padding:8px 16px;border:1.5px solid #4da6e8;border-radius:8px;background:white;color:#4da6e8;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">🖼 Upload File</button>
+      </div>
     </div>
     <div class="photo-preview">
       <img id="photoPreview" src="" alt="Child photo">
-      <span class="retake">📷 Retake Photo</span>
+      <div style="display:flex;gap:8px;margin-top:8px;justify-content:center;">
+        <button type="button" onclick="document.getElementById('photoInputCamera').click()" style="padding:6px 12px;border:1.5px solid #e8631a;border-radius:8px;background:white;color:#e8631a;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;">📷 Retake</button>
+        <button type="button" onclick="document.getElementById('photoInputGallery').click()" style="padding:6px 12px;border:1.5px solid #4da6e8;border-radius:8px;background:white;color:#4da6e8;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;">🖼 Change</button>
+      </div>
     </div>
   </div>
 
@@ -1138,7 +1145,8 @@
     photoBase64 = null;
     document.getElementById("photoPreview").src = "";
     document.getElementById("photoCard").classList.remove("has-photo");
-    document.getElementById("photoInput").value = "";
+    document.getElementById("photoInputCamera").value = "";
+    document.getElementById("photoInputGallery").value = "";
   }
 
 
