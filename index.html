@@ -870,15 +870,22 @@
         </div>
       </div>
       <div class="photo-card" id="updatePhotoCard">
-        <input type="file" accept="image/*" capture id="updatePhotoInput" onchange="handleUpdatePhoto(event)">
+        <input type="file" accept="image/*" capture="environment" id="updatePhotoInputCamera" onchange="handleUpdatePhoto(event)" style="display:none;">
+        <input type="file" accept="image/*" id="updatePhotoInputGallery" onchange="handleUpdatePhoto(event)" style="display:none;">
         <div class="photo-placeholder">
           <div class="cam-circle">📷</div>
-          <p>Take New Photo</p>
-          <span>Tap to open camera</span>
+          <p>Add New Photo</p>
+          <div style="display:flex;gap:10px;margin-top:10px;justify-content:center;">
+            <button type="button" onclick="document.getElementById('updatePhotoInputCamera').click()" style="padding:8px 16px;border:1.5px solid #e8631a;border-radius:8px;background:white;color:#e8631a;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">📷 Take Photo</button>
+            <button type="button" onclick="document.getElementById('updatePhotoInputGallery').click()" style="padding:8px 16px;border:1.5px solid #4da6e8;border-radius:8px;background:white;color:#4da6e8;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;">🖼 Upload File</button>
+          </div>
         </div>
         <div class="photo-preview">
           <img id="updatePhotoPreview" src="" alt="New photo">
-          <span class="retake">📷 Retake Photo</span>
+          <div style="display:flex;gap:8px;margin-top:8px;justify-content:center;">
+            <button type="button" onclick="document.getElementById('updatePhotoInputCamera').click()" style="padding:6px 12px;border:1.5px solid #e8631a;border-radius:8px;background:white;color:#e8631a;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;">📷 Retake</button>
+            <button type="button" onclick="document.getElementById('updatePhotoInputGallery').click()" style="padding:6px 12px;border:1.5px solid #4da6e8;border-radius:8px;background:white;color:#4da6e8;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;">🖼 Change</button>
+          </div>
         </div>
       </div>
 
@@ -1192,7 +1199,8 @@
     updatePhotoBase64 = null;
     const pc = document.getElementById('updatePhotoCard'); if (pc) pc.classList.remove('has-photo');
     const pp = document.getElementById('updatePhotoPreview'); if (pp) pp.src = '';
-    const pi = document.getElementById('updatePhotoInput'); if (pi) pi.value = '';
+    const pi1 = document.getElementById('updatePhotoInputCamera'); if (pi1) pi1.value = '';
+    const pi2 = document.getElementById('updatePhotoInputGallery'); if (pi2) pi2.value = '';
   }
 
   // ── FIND STUDENT — Live Google Apps Script lookup ─────────────────────────
@@ -1504,7 +1512,8 @@
     const gradeRow = document.getElementById('updateGradeFieldRow'); if (gradeRow) gradeRow.style.display = 'none';
     document.getElementById('updatePhotoCard').classList.remove('has-photo');
     document.getElementById('updatePhotoPreview').src = '';
-    document.getElementById('updatePhotoInput').value = '';
+    document.getElementById('updatePhotoInputCamera').value = '';
+    document.getElementById('updatePhotoInputGallery').value = '';
   }
 
 </script>
