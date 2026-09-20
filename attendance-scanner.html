@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Attendance Scanner</title>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Roboto, Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  h2 { margin: 8px 0; font-size: 18px; text-align: center; }
+  #reader {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #status {
+    margin-top: 16px;
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    background: #333;
+    transition: background 0.2s;
+  }
+  #status.success { background: #1b8a3a; }
+  #status.error { background: #a33; }
+  #setup {
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 12px;
+  }
+  #setup input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 8px;
+  }
+  #setup button {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-weight: bold;
+  }
+  #log {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #999;
+    max-height: 100px;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<h2>Student Attendance Scanner</h2>
+
+<div id="setup">
+  <input type="text" id="scriptUrl" placeholder="Paste your Apps Script Web App URL here" />
+  <button onclick="startScanner()">Start Scanning</button>
+</div>
+
+<div id="reader" style="display:none;"></div>
+<div id="status">Enter your script URL above and tap Start</div>
+<div id="log"></div>
+
+<script>
+let html5QrCode;
+let cooldown = false;
+
+function log(msg) {
+  const logEl = document.getElementById("log");
+  const line = document.createElement("div");
+  line.textContent = msg;
+  logEl.prepend(line);
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = type || "";
+}
+
+async function startScanner() {
+  const url = document.getElementById("scriptUrl").value.trim();
+  if (!url) {
+    alert("Paste your Apps Script Web App URL first.");
+    return;
+  }
+  window.SCRIPT_URL = url;
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("reader").style.display = "block";
+
+  html5QrCode = new Html5Qrcode("reader");
+  const config = {
+    fps: 10,
+    qrbox: { width: 280, height: 120 },
+    formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_39 ]
+  };
+
+  try {
+    await html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      onScanSuccess,
+      () => {}
+    );
+    setStatus("Ready — point camera at ID barcode", "");
+  } catch (err) {
+    setStatus("Camera error: " + err, "error");
+  }
+}
+
+function onScanSuccess(decodedText) {
+  if (cooldown) return;
+  cooldown = true;
+
+  const id = decodedText.trim();
+  setStatus("Scanned: " + id + " — sending...", "");
+
+  fetch(window.SCRIPT_URL + "?id=" + encodeURIComponent(id))
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        setStatus("✓ Logged: " + data.id, "success");
+        log("Logged " + data.id + " at " + new Date().toLocaleTimeString());
+      } else {
+        setStatus("Error: " + data.message, "error");
+      }
+    })
+    .catch(err => {
+      setStatus("Network error — check connection", "error");
+      log("Failed to send " + id);
+    })
+    .finally(() => {
+      setTimeout(() => {
+        cooldown = false;
+        setStatus("Ready — point camera at ID barcode", "");
+      }, 2000);
+    });
+}
+</script>
+
+</body>
+</html>
