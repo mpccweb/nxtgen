@@ -144,8 +144,12 @@ function onScanSuccess(decodedText) {
     .then(res => res.json())
     .then(data => {
       if (data.status === "ok") {
-        setStatus("✓ Logged: " + data.id, "success");
-        log("Logged " + data.id + " at " + new Date().toLocaleTimeString());
+        const fullName = data.firstName + " " + data.lastName;
+        setStatus("✓ " + fullName + " — " + data.grade, "success");
+        log(fullName + " (" + data.grade + ") logged at " + new Date().toLocaleTimeString());
+      } else if (data.status === "not_found") {
+        setStatus("⚠ ID " + data.id + " not found", "error");
+        log("Unrecognized ID: " + data.id);
       } else {
         setStatus("Error: " + data.message, "error");
       }
