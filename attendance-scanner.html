@@ -71,6 +71,43 @@
     max-height: 100px;
     overflow-y: auto;
   }
+  #manualRow, #uploadRow {
+    display: none;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 12px;
+    gap: 8px;
+  }
+  #manualRow input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+  }
+  #manualRow button, #uploadRow label {
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  #uploadRow { display: none; }
+  #uploadRow input[type=file] { display: none; }
+  #changeUrlLink {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #888;
+    text-decoration: underline;
+    cursor: pointer;
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -84,6 +121,19 @@
 
 <div id="reader" style="display:none;"></div>
 <div id="status">Enter your script URL above and tap Start</div>
+
+<div id="manualRow" style="display:none;">
+  <input type="text" id="manualId" placeholder="Type Student ID" inputmode="numeric" />
+  <button onclick="submitManualId()">Log</button>
+</div>
+
+<div id="uploadRow" style="display:none;">
+  <label for="photoUpload">Upload ID Photo</label>
+  <input type="file" id="photoUpload" accept="image/*" onchange="handlePhotoUpload(event)" />
+</div>
+
+<div id="changeUrlLink" onclick="changeUrl()">Change Web App URL</div>
+
 <div id="log"></div>
 
 <script>
@@ -103,6 +153,18 @@ function setStatus(msg, type) {
   el.className = type || "";
 }
 
+// Remember the script URL on this phone so it doesn't need re-pasting each time.
+window.addEventListener("DOMContentLoaded", () => {
+  try {
+    const saved = localStorage.getItem("attendanceScriptUrl");
+    if (saved) {
+      document.getElementById("scriptUrl").value = saved;
+    }
+  } catch (e) {
+    // localStorage can fail in private/incognito mode - not critical, just skip
+  }
+});
+
 async function startScanner() {
   const url = document.getElementById("scriptUrl").value.trim();
   if (!url) {
@@ -110,8 +172,17 @@ async function startScanner() {
     return;
   }
   window.SCRIPT_URL = url;
+  try {
+    localStorage.setItem("attendanceScriptUrl", url);
+  } catch (e) {
+    // ignore storage errors, non-critical
+  }
+
   document.getElementById("setup").style.display = "none";
   document.getElementById("reader").style.display = "block";
+  document.getElementById("manualRow").style.display = "flex";
+  document.getElementById("uploadRow").style.display = "flex";
+  document.getElementById("changeUrlLink").style.display = "block";
 
   html5QrCode = new Html5Qrcode("reader");
   const config = {
@@ -136,8 +207,67 @@ async function startScanner() {
 function onScanSuccess(decodedText) {
   if (cooldown) return;
   cooldown = true;
+  processId(decodedText.trim());
+}
 
-  const id = decodedText.trim();
+function submitManualId() {
+  const input = document.getElementById("manualId");
+  const id = input.value.trim();
+  if (!id) return;
+  input.value = "";
+  processId(id);
+}
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  setStatus("Reading barcode from photo...", "");
+
+  // html5-qrcode can decode a barcode from a static image file directly,
+  // using a temporary hidden scanner instance separate from the live camera one.
+  const tempScannerId = "temp-file-reader";
+  let tempDiv = document.getElementById(tempScannerId);
+  if (!tempDiv) {
+    tempDiv = document.createElement("div");
+    tempDiv.id = tempScannerId;
+    tempDiv.style.display = "none";
+    document.body.appendChild(tempDiv);
+  }
+
+  const fileScanner = new Html5Qrcode(tempScannerId);
+  fileScanner.scanFile(file, false)
+    .then(decodedText => {
+      processId(decodedText.trim());
+      fileScanner.clear();
+    })
+    .catch(err => {
+      setStatus("Could not read barcode from photo — try manual entry", "error");
+      fileScanner.clear();
+    });
+
+  event.target.value = "";
+}
+
+function changeUrl() {
+  if (html5QrCode) {
+    html5QrCode.stop().catch(() => {}).finally(resetToSetup);
+  } else {
+    resetToSetup();
+  }
+}
+
+function resetToSetup() {
+  document.getElementById("setup").style.display = "flex";
+  document.getElementById("setup").style.flexDirection = "column";
+  document.getElementById("reader").style.display = "none";
+  document.getElementById("manualRow").style.display = "none";
+  document.getElementById("uploadRow").style.display = "none";
+  document.getElementById("changeUrlLink").style.display = "none";
+  setStatus("Enter your script URL above and tap Start", "");
+}
+
+function processId(id) {
   setStatus("Scanned: " + id + " — sending...", "");
 
   fetch(window.SCRIPT_URL + "?id=" + encodeURIComponent(id))
