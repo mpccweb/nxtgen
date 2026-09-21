@@ -169,6 +169,15 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Register the service worker - required for Chrome's "Install app" prompt.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((err) => {
+      console.log("Service worker registration failed:", err);
+    });
+  });
+}
+
 async function startScanner() {
   const url = document.getElementById("scriptUrl").value.trim();
   if (!url) {
